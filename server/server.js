@@ -14,9 +14,8 @@ app.get("/", (req, res) => {
 // Get the people from SWAPI
 app.get("/people", (req, res) => {
   axios
-    .get("https://swapi.dev/api/people/1")
+    .get("https://swapi.dev/api/people")
     .then((response) => {
-      console.log(response.data);
       res.json(response.data);
     })
     .catch((err) => {

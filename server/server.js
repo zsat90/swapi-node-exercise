@@ -19,6 +19,24 @@ const getSortValue = (person, sortBy) => {
   }
 };
 
+
+const getAllPlanets = async () => {
+  let allPlanets = [];
+  let getNext = "https://swapi.dev/api/planets";
+
+  try {
+    while(getNext) {
+      const response = await axios.get(getNext);
+      allPlanets = allPlanets.concat(response.data.results)
+      getNext = response.data.next
+    }
+
+  }
+  catch (error) {
+    res.send(error);
+  }
+}
+
 const getAllPeople = async (sortBy) => {
   let allPeople = [];
   let getNext = "https://swapi.dev/api/people";
@@ -68,9 +86,9 @@ app.get("/people", async (req, res) => {
 });
 
 app.get("/planets", async (req, res) => {
-  const planets = await axios.get("https://swapi.dev/api/planets");
+  const planets = await getAllPlanets();
 
-  res.json(planets.data.results);
+  return res.json(planets)
 });
 
 app.listen(port, () => {

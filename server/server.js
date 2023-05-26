@@ -19,33 +19,48 @@ const getSortValue = (person, sortBy) => {
   }
 };
 
-
 const getAllPlanets = async () => {
   let allPlanets = [];
-  let getNext = "https://swapi.dev/api/planets";
+  let nextPlanet = "https://swapi.dev/api/planets";
 
   try {
-    while(getNext) {
-      const response = await axios.get(getNext);
-      allPlanets = allPlanets.concat(response.data.results)
-      getNext = response.data.next
-    }
+    while (nextPlanet) {
+      const response = await axios.get(nextPlanet);
+      const planets = response.data.results;
 
-  }
-  catch (error) {
+      const sortPlanets = planets.map(async (planet) => {
+        const sortResidents = planet.residents.map(async (residentUrl) => {
+          const residentResponse = await axios.get(residentUrl);
+          return residentResponse.data.name;
+        });
+
+        const residentNames = await Promise.all(sortResidents);
+
+        planet.residents = residentNames;
+        return planet;
+      });
+
+      const planetInfo = await Promise.all(sortPlanets);
+
+      allPlanets = allPlanets.concat(planetInfo);
+      getNext = response.data.next;
+    }
+  } catch (error) {
     res.send(error);
   }
-}
+
+  return allPlanets;
+};
 
 const getAllPeople = async (sortBy) => {
   let allPeople = [];
-  let getNext = "https://swapi.dev/api/people";
+  let nextPerson = "https://swapi.dev/api/people";
 
   try {
-    while (getNext) {
-      const response = await axios.get(getNext);
+    while (nextPerson) {
+      const response = await axios.get(nextPerson);
       allPeople = allPeople.concat(response.data.results);
-      getNext = response.data.next;
+      nextPerson = response.data.next;
     }
 
     if (sortBy) {
@@ -88,7 +103,7 @@ app.get("/people", async (req, res) => {
 app.get("/planets", async (req, res) => {
   const planets = await getAllPlanets();
 
-  return res.json(planets)
+  return res.json(planets);
 });
 
 app.listen(port, () => {

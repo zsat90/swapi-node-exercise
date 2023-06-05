@@ -22,8 +22,19 @@ A project that uses the Star Wars API to let the user display data related to th
 3. Start the server
 4. Start the app
 
-Once complete the application will be available on localhost:3001
 
 ## Usage
+
+/people - Will display all people
+
+/people?sortBy=name - Will display all people in order by name
+
+/people?sortBy=height - Will display all people in order by height
+
+/people?SortBy=mass - Will display all people in order by mass
+
+/planets - Will display all planets
+
+
 
 

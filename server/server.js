@@ -19,12 +19,9 @@ const getSortValue = (person, sortBy) => {
   }
 };
 
-const getAllPlanets = async () => {
-  let allPlanets = [];
-  let nextPlanet = "https://swapi.dev/api/planets";
-
+const getAllPlanets = async (nextPlanet = "https://swapi.dev/api/planets", allPlanets = []) => {
+  
   try {
-    while (nextPlanet) {
       const response = await axios.get(nextPlanet);
       const planets = response.data.results;
 
@@ -43,31 +40,54 @@ const getAllPlanets = async () => {
       const planetInfo = await Promise.all(sortPlanets);
 
       allPlanets = allPlanets.concat(planetInfo);
-      getNext = response.data.next;
-    }
+      
+      if (response.data.next) {
+          return getAllPlanets(response.data.next, allPlanets)
+      } else {
+        return allPlanets;
+      }
+    
   } catch (error) {
-    res.send(error);
+    console.log(error)
   }
 
-  return allPlanets;
 };
 
-const getAllPeople = async (sortBy) => {
-  let allPeople = [];
-  let nextPerson = "https://swapi.dev/api/people";
-
+const getAllPeople = async (sortBy, nextPerson = "https://swapi.dev/api/people", allPeople = []) => {
+  
   try {
-    while (nextPerson) {
+    
       const response = await axios.get(nextPerson);
-      allPeople = allPeople.concat(response.data.results);
       nextPerson = response.data.next;
-    }
+
+      allPeople = allPeople.concat(response.data.results);
+    
+    
 
     if (sortBy) {
       allPeople.sort((a, b) => {
         const valueA = getSortValue(a, sortBy);
         const valueB = getSortValue(b, sortBy);
 
+        if(valueA === 'unknown'){
+          return 1;
+        }
+        if(valueB === 'unknown'){
+          return -1;
+        }
+
+        if(sortBy === 'height' || sortBy === 'mass'){
+          const numValueA = parseInt(valueA);
+          const numValueB = parseInt(valueB);
+
+          if (numValueA < numValueB) {
+            return -1;
+          }
+          if (numValueA > numValueB) {
+            return 1;
+          }
+          return 0;
+        } else {
         if (valueA < valueB) {
           return -1;
         }
@@ -75,18 +95,21 @@ const getAllPeople = async (sortBy) => {
           return 1;
         }
         return 0;
+      }
       });
     }
+
+    if(response.data.next) {
+      return getAllPeople(sortBy, response.data.next, allPeople)
+    } else {
+      return allPeople;
+    }
   } catch (error) {
-    res.send(error);
+    console.log(error)
   }
 
-  return allPeople;
+  
 };
-
-app.get("/", (req, res) => {
-  res.send("Express is working! Yes sir");
-});
 
 app.get("/people", async (req, res) => {
   const sortBy = req.query.sortBy;

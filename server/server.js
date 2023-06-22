@@ -19,6 +19,11 @@ const getSortValue = (person, sortBy) => {
   }
 };
 
+const sortMass = (mass) => {
+  const parsedMass = mass.replace(',', '');
+  return parseInt(parsedMass)
+}
+
 const getAllPlanets = async (nextPlanet = "https://swapi.dev/api/planets", allPlanets = []) => {
   
   try {
@@ -76,7 +81,7 @@ const getAllPeople = async (sortBy, nextPerson = "https://swapi.dev/api/people",
           return -1;
         }
 
-        if(sortBy === 'height' || sortBy === 'mass'){
+        if(sortBy === 'height'){
           const numValueA = parseInt(valueA);
           const numValueB = parseInt(valueB);
 
@@ -87,6 +92,20 @@ const getAllPeople = async (sortBy, nextPerson = "https://swapi.dev/api/people",
             return 1;
           }
           return 0;
+          
+        } else if(sortBy === 'mass'){
+          const numValueA = sortMass(valueA);
+          const numValueB = sortMass(valueB);
+
+          if (numValueA < numValueB) {
+            return -1;
+          }
+          if (numValueA > numValueB) {
+            return 1;
+          }
+          return 0;
+
+
         } else {
         if (valueA < valueB) {
           return -1;
